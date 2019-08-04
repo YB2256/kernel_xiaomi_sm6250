@@ -218,6 +218,8 @@ else
 		ld-name = bfd
 	endif
 endif
+# Expands to bfd, gold, or lld
+ld-name = $(shell if $(LD) -v 2>&1 | grep -q "GNU gold"; then echo gold; elif $(LD) -v 2>&1 | grep -q "LLD"; then echo lld; else echo bfd; fi)
 
 # ld-version
 # Note this is mainly for HJ Lu's 3 number binutil versions

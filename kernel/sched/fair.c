@@ -9762,10 +9762,6 @@ static void update_cpu_capacity(struct sched_domain *sd, int cpu)
 {
 	unsigned long capacity = arch_scale_cpu_capacity(sd, cpu);
 	struct sched_group *sdg = sd->groups;
-	struct max_cpu_capacity *mcc;
-	unsigned long max_capacity;
-	int max_cap_cpu;
-	unsigned long flags;
 	bool update = false;
 
 	capacity *= arch_scale_max_freq_capacity(sd, cpu);
@@ -9776,12 +9772,6 @@ static void update_cpu_capacity(struct sched_domain *sd, int cpu)
 		cpu_rq(cpu)->cpu_capacity_orig = capacity;
 		update = true;
 	}
-
-	mcc = &cpu_rq(cpu)->rd->max_cpu_capacity;
-
-	raw_spin_lock_irqsave(&mcc->lock, flags);
-	max_capacity = mcc->val;
-	max_cap_cpu = mcc->cpu;
 
 	if ((max_capacity > capacity && max_cap_cpu == cpu) ||
 	    max_capacity < capacity) {

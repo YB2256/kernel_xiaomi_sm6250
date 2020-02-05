@@ -7376,14 +7376,9 @@ static inline bool task_fits_max(struct task_struct *p, int cpu)
 	if (capacity == max_capacity)
 		return true;
 
-	if (is_min_capacity_cpu(cpu)) {
-		if (task_boost_policy(p) == SCHED_BOOST_ON_BIG ||
-			task_boost > 0)
-			return false;
-	} else { /* mid cap cpu */
-		if (task_boost > 1)
-			return false;
-	}
+	if (task_boost_policy(p) == SCHED_BOOST_ON_BIG &&
+			is_min_capacity_cpu(cpu))
+		return false;
 
 	return task_fits_capacity(p, capacity, cpu);
 }
@@ -8176,7 +8171,7 @@ static inline struct cpumask *find_rtg_target(struct task_struct *p)
 static int find_energy_efficient_cpu(struct sched_domain *sd,
 				     struct task_struct *p,
 				     int cpu, int prev_cpu,
-				     int sync, bool sync_boost, int sibling_count_hint)
+				     int sync, bool sync_boost)
 {
 	int use_fbt = sched_feat(FIND_BEST_TARGET);
 	int cpu_iter, eas_cpu_idx = EAS_CPU_NXT;
@@ -8190,7 +8185,7 @@ static int find_energy_efficient_cpu(struct sched_domain *sd,
 	u64 start_t = 0;
 	int next_cpu = -1, backup_cpu = -1;
 	int boosted = (schedtune_task_boost(p) > 0);
-	bool prefer_high_cap = schedtune_prefer_high_cap(p);
+
 	fbt_env.fastpath = 0;
 
 	if (trace_sched_task_util_enabled())
@@ -8490,7 +8485,7 @@ pick_cpu:
 				      cpu >= cpu_rq(cpu)->rd->mid_cap_orig_cpu;
 
 			new_cpu = find_energy_efficient_cpu(energy_sd, p, cpu,
-						    prev_cpu, sync, sync_boost, sibling_count_hint);
+						    prev_cpu, sync, sync_boost);
 		}
 
 		/* if we did an energy-aware placement and had no choices available
@@ -9762,6 +9757,10 @@ static void update_cpu_capacity(struct sched_domain *sd, int cpu)
 {
 	unsigned long capacity = arch_scale_cpu_capacity(sd, cpu);
 	struct sched_group *sdg = sd->groups;
+	struct max_cpu_capacity *mcc;
+	unsigned long max_capacity;
+	int max_cap_cpu;
+	unsigned long flags;
 	bool update = false;
 
 	capacity *= arch_scale_max_freq_capacity(sd, cpu);
@@ -11259,9 +11258,6 @@ no_move:
 				busiest->active_balance = 1;
 				busiest->push_cpu = this_cpu;
 				active_balance = 1;
-#ifdef CONFIG_SCHED_WALT
-				mark_reserved(this_cpu);
-#endif
 			}
 			raw_spin_unlock_irqrestore(&busiest->lock, flags);
 
@@ -13165,7 +13161,7 @@ void check_for_migration(struct rq *rq, struct task_struct *p)
 		raw_spin_lock(&migration_lock);
 		rcu_read_lock();
 		new_cpu = find_energy_efficient_cpu(sd, p, cpu, prev_cpu,
-						    0, false, 1);
+						    0, false);
 		rcu_read_unlock();
 		if ((new_cpu != -1) &&
 			(capacity_orig_of(new_cpu) > capacity_orig_of(cpu))) {

@@ -36,14 +36,15 @@ REGENERATE_DEFCONFIG="true" # unset if don't want to regenerate defconfig
 
 # Costumize
 KERNEL="SiLonT"
-DEVICE="Joyeuse"
-KERNELTYPE="Test"
+DEVICE="Miatoll"
+KERNELTYPE="Unified"
 KERNELNAME="${KERNEL}-${DEVICE}-${KERNELTYPE}-$(date +%y%m%d-%H%M)"
 TEMPZIPNAME="${KERNELNAME}-unsigned.zip"
 ZIPNAME="${KERNELNAME}.zip"
 
 # Telegram
-CHATID="" # Group/channel chatid (use rose/userbot to get it)
+CHATIDQ="-425671460"
+CHATID="-1001276955142" # Group/channel chatid (use rose/userbot to get it)
 TELEGRAM_TOKEN="" # Get from botfather
 
 # Export Telegram.sh
@@ -89,7 +90,7 @@ makekernel() {
 	    END=$(date +"%s")
 	    DIFF=$(( END - START ))
 	    echo -e "Kernel compilation failed, See buildlog to fix errors"
-	    tg_cast "Build for ${DEVICE} <b>failed</b> in $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)! Check Instance for errors @azrim89"
+	    tg_cast "Build for ${DEVICE} <b>failed</b> in $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)! Check Instance for errors @ThisIsTag"
 	    exit 1
     fi
 }
@@ -119,7 +120,7 @@ packingkernel() {
     java -jar zipsigner-3.0.jar "${TEMPZIPNAME}" "${ZIPNAME}"
 
     # Ship it to the CI channel
-    "${TELEGRAM}" -f "$ZIPNAME" -t "${TELEGRAM_TOKEN}" -c "${CHATID}"
+    "${TELEGRAM}" -f "$ZIPNAME" -t "${TELEGRAM_TOKEN}" -c "${CHATIDQ}"
 }
 
 # Starting
@@ -133,4 +134,4 @@ makekernel
 packingkernel
 END=$(date +"%s")
 DIFF=$(( END - START ))
-tg_cast "Build for ${DEVICE} with ${COMPILER_STRING} <b>succeed</b> took $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)! @azrim89"
+tg_cast "Build for ${DEVICE} with ${COMPILER_STRING} <b>succeed</b> took $((DIFF / 60)) minute(s) and $((DIFF % 60)) second(s)! @ThisIsTag"

@@ -288,14 +288,10 @@ int msm_rd_debugfs_init(struct drm_minor *minor)
 	if (!ent) {
 		DRM_ERROR("Cannot create /sys/kernel/debug/dri/%pd/rd\n",
 				minor->debugfs_root);
-		goto fail;
 	}
 
 	return 0;
 
-fail:
-	msm_rd_debugfs_cleanup(priv);
-	return -1;
 }
 
 void msm_rd_debugfs_cleanup(struct msm_drm_private *priv)

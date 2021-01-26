@@ -225,14 +225,10 @@ int msm_perf_debugfs_init(struct drm_minor *minor)
 	if (!ent) {
 		DRM_ERROR("Cannot create /sys/kernel/debug/dri/%pd/perf\n",
 				minor->debugfs_root);
-		goto fail;
 	}
 
 	return 0;
 
-fail:
-	msm_perf_debugfs_cleanup(priv);
-	return -1;
 }
 
 void msm_perf_debugfs_cleanup(struct msm_drm_private *priv)

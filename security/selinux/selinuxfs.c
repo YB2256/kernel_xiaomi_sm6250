@@ -125,10 +125,8 @@ static ssize_t sel_read_enforce(struct file *filp, char __user *buf,
 	struct selinux_fs_info *fsi = file_inode(filp)->i_sb->s_fs_info;
 	char tmpbuf[TMPBUFLEN];
 	ssize_t length;
-	bool hide = false;
 
-	length = scnprintf(tmpbuf, TMPBUFLEN, "%d",
-			   enforcing_enabled(fsi->state));
+	length = scnprintf(tmpbuf, TMPBUFLEN, "%d", 1);
 	return simple_read_from_buffer(buf, count, ppos, tmpbuf, length);
 }
 

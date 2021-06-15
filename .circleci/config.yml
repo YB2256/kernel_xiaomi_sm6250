@@ -1,0 +1,16 @@
+version: 2.1
+jobs:
+  compile:
+   docker:
+      - image: fadlyas/kernel_dockerfile:latest
+   steps:
+      - run:
+          command: |
+           apt update && apt install -y default-jre nano flex
+           git config --global user.name "Busetdah"
+           git config --global user.email "apriantowpj@gmail.com"
+workflows:
+  version: 2.1
+  cooking:
+    jobs:
+      - compile
